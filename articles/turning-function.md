@@ -6,6 +6,7 @@ topics: ["アルゴリズム", "Python", "幾何学", "形状分析", "ComputerV
 published: true
 published_at: 2024-12-03
 ---
+![](/images/header-toggle.png)
 
 こんにちは、トグルホールディングスのAIエンジニアの[中村](https://note.com/toggle/n/nbb9e9d9ee328)です！
 
