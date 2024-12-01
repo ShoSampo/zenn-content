@@ -48,6 +48,147 @@ Turning Function（回転関数）は、ポリゴンの形状を1次元のステ
    - ステップ関数として表現される
    - 頂点間（エッジ上）では角度は一定
 
+### 実装例
+Turning Functionの主要な部分を以下のようなPythonクラスで実装しました。
+ここでは、核となる機能のみを示します（完全な実装ではないことに注意してください）：
+
+```python
+class TurningFunction(BaseModel):
+    """
+    ポリゴンのTurning Functionを表現するクラス。
+    弧長と回転角の配列を保持し、形状の非類似度計算などに使用する。
+    """
+    arc_lengths: NDArray[np.float64] = Field(
+        description="累積弧長の配列"
+    )
+    turning_angles: NDArray[np.float64] = Field(
+        description="累積回転角の配列"
+    )
+
+    model_config = {
+        "frozen": True,
+        "arbitrary_types_allowed": True
+    }
+
+    @classmethod
+    def from_polygon(cls, polygon: Polygon) -> TurningFunction:
+        """
+        ポリゴンからTurning Functionのインスタンスを生成
+
+        Args:
+            polygon (Polygon): 入力ポリゴン
+
+        Returns:
+            TurningFunction: 生成されたターニング関数
+        """
+        coords = get_polygon_coordinates(polygon)
+        arc_lengths = cls._calculate_arc_lengths(coords)
+        turning_angles = cls._calculate_turning_angles(coords)
+        return cls(arc_lengths=arc_lengths, turning_angles=turning_angles)
+
+    def normalize(self) -> TurningFunction:
+        """
+        弧長を正規化したTurning Functionを返す
+
+        Returns:
+            TurningFunction: 正規化されたTurning Function
+        """
+        total_length = self.arc_lengths[-1]
+        normalized_lengths = self.arc_lengths / total_length
+        return TurningFunction(
+            arc_lengths=normalized_lengths,
+            turning_angles=self.turning_angles
+        )
+
+    @staticmethod
+    def _calculate_arc_lengths(coords: List[Coordinate]) -> NDArray[np.float64]:
+        """座標列から弧長を計算"""
+        distances = np.array([
+            TurningFunction._calculate_distance(p1, p2) 
+            for p1, p2 in zip(coords, coords[1:])
+        ])
+        return TurningFunction._prepend_zero(np.cumsum(distances))
+
+    @staticmethod
+    def _calculate_turning_angles(coords: List[Coordinate]) -> NDArray[np.float64]:
+        """座標列から回転角を計算"""
+        turning_angles = np.array([
+            TurningFunction._calculate_angle(p1, p2, p3) 
+            for p1, p2, p3 in zip(
+                coords, 
+                coords[1:], 
+                coords[2:] + [coords[1], coords[2]]
+            )
+        ])
+        return TurningFunction._prepend_zero(np.cumsum(turning_angles))
+
+    @staticmethod
+    def _calculate_angle(p1: Coordinate, p2: Coordinate, p3: Coordinate) -> float:
+        """3点の座標を受け取り、それらの点を結ぶベクトルの角度を計算して返す"""
+        v1 = p2.to_numpy() - p1.to_numpy()
+        v2 = p3.to_numpy() - p2.to_numpy()
+        
+        v1_u = v1 / np.linalg.norm(v1)
+        v2_u = v2 / np.linalg.norm(v2)
+        
+        dot_product = np.dot(v1_u, v2_u)
+        cross_product = v1_u[0] * v2_u[1] - v1_u[1] * v2_u[0]
+        
+        return np.arctan2(cross_product, dot_product)
+
+    @staticmethod
+    def _calculate_distance(p1: Coordinate, p2: Coordinate) -> float:
+        """2点間のユークリッド距離を計算する"""
+        return np.linalg.norm(p2.to_numpy() - p1.to_numpy())
+
+    @staticmethod
+    def _prepend_zero(values: NDArray[np.float64]) -> NDArray[np.float64]:
+        """配列の先頭に0を追加する"""
+        return np.insert(values, 0, 0)
+```
+
+このクラスは以下の特徴を持ちます：
+
+1. **データの保持**
+   - 累積弧長（arc_lengths）
+   - 累積回転角（turning_angles）
+
+2. **主要な機能**
+   - ポリゴンを受け取りインスタンス生成（from_polygon）
+   - 弧長の正規化（normalize）
+   - 回転角度計算（_calculate_turning_angles）
+   - 弧長計算（_calculate_arc_lengths）
+
+
+### 使用例
+以下は、正方形のポリゴンに対してTurning Functionを計算する簡単な例です：
+
+```python
+from shapely.geometry import Polygon
+
+# 正方形のポリゴンを用意
+square_polygon = Polygon([
+    (0, 0), 
+    (1, 0), 
+    (1, 1), 
+    (0, 1), 
+    (0, 0)  
+])
+
+# Turning Functionを計算
+square_tf = TurningFunction.from_polygon(square_polygon)
+# 正規化
+square_tf = square_tf.normalize()
+
+print(square_tf)
+# 出力:
+# TurningFunction(
+#     arc_lengths=array([0.  , 0.25, 0.5 , 0.75, 1.  ]), 
+#     turning_angles=array([0.        , 1.57079633, 3.14159265, 4.71238898, 6.28318531])
+# )
+```
+
+以下に様々な形状のポリゴンのTurning Functionをプロットした具体例を示します。
 
 ### 具体例
 
