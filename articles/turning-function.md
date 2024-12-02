@@ -2,13 +2,13 @@
 title: "Turning Functionを用いたポリゴン形状マッチング"
 emoji: "🧩"
 type: "tech"
-topics: ["アルゴリズム", "Python", "幾何学", "形状分析", "ComputerVision"]
+topics: ["アルゴリズム", "Python", "幾何学", "形状分析", "GIS"]
 published: true
 published_at: 2024-12-03
 ---
 ![](/images/header-toggle.png)
 
-こんにちは、トグルホールディングスのAIエンジニアの[中村](https://note.com/toggle/n/nbb9e9d9ee328)です！
+こんにちは、トグルホールディングスのAIエンジニアの[中村](https://x.com/shosampo)です！
 
 [トグルホールディングスエンジニアアドベントカレンダー](https://qiita.com/advent-calendar/2024/toggle)の3日目の記事です！ 
 
