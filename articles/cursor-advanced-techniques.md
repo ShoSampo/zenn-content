@@ -3,7 +3,7 @@ title: "Cursor上級テクニック〜月額$20の真価を解放せよ〜"
 emoji: "💸"
 type: "tech"
 topics: ["Cursor", "IDE", "開発効率化", "VSCode", "開発ツール"]
-published: false
+published: true
 ---
 ![](/images/header-toggle.png)
 
@@ -24,6 +24,8 @@ Cursorの主要機能を一通り使いこなしている方も多いかと思�
 
 少しの手間をかけるだけで、Cursorはあなたの **プロジェクト全体を俯瞰してサポートする頼れる“参謀”** になり得るのです！
 
+https://www.cursor.com/
+
 
 # 1. ChatとComposer、それぞれの真価を知る
 
@@ -37,6 +39,7 @@ Cursorには大きく分けて「Chat」と「Composer」の2種類のモード�
 > It provides a workspace where you can generate new code and apply changes directly to your files.
 
 一言でまとめると、**Chatはコードベースの探索・理解に特化し、Composerはコードの生成・編集に特化**しています。
+
 
 ### Chatモード
 - **コードベースの探索と理解が主目的**  
@@ -54,13 +57,15 @@ Cursorには大きく分けて「Chat」と「Composer」の2種類のモード�
   - 単発の質問というよりは、連続的・段階的にコードを作り上げたいときに最適です。  
   - やや複雑なコードブロックの生成や既存ロジックのリファクタリングなど、腰を据えて作業したい場合におすすめです。
 
-## シチュエーション別の切り替えガイド
+![](/images/cursor-advanced-techniques/composer.png)
 
-### 要件定義フェーズやバグ調査にはChat
+### どう使い分ける？
+
+#### 要件定義フェーズやバグ調査にはChat
   - プロジェクトの仕様や既存コードの挙動を掴むときに役立ちます。  
   - また、クイックに疑問を解消したい場合もChatでサクッと聞くのがおすすめです。
 
-### 実装フェーズやリファクタリングにはComposer
+#### 実装フェーズやリファクタリングにはComposer
   - 新規コードを書く・既存コードを大幅に書き換えるなど、手が大きく動く作業にはComposerがピッタリ。  
   - 細かい修正から大きな機能追加まで、Composerなら生成したコードを即座にファイルに反映してくれます。
 
@@ -71,6 +76,9 @@ Cursorには大きく分けて「Chat」と「Composer」の2種類のモード�
 # 2. Composerには２つのモードがある？！
 
 Composerは、コードを生成・編集する「場所」としての役割を担いますが、その内部でもさらに**Normalモード**と**Agentモード**という2つのモードがあります。公式ドキュメントによると、それぞれ特徴が異なるため、活用方法を知っておくことでComposerの潜在能力をフルに引き出せます。
+
+![](/images/cursor-advanced-techniques/agent.gif)
+
 
 ## Normalモード
 
@@ -132,6 +140,8 @@ Cursorでより高品質・一貫性のあるコードを得るために、**グ
   3. **基本フローの指定**  
      - 例：「最初に擬似コードを書き、それを確認してから本実装に移る」「誤りがあれば謝罪ではなく修正を優先」  
      - AIに作業工程を意識させることで、初めからテストを含めたコード提案など、品質担保につながる可能性があります。
+
+![](/images/cursor-advanced-techniques/rules-ai.png)
 
 
 ## `.cursorrules`でプロジェクト固有のルールを管理する
@@ -206,6 +216,8 @@ config.json
 こうすることで、モノレポ全体を参照対象とする無駄を回避し、**必要な範囲だけCursorに食わせる**柔軟な運用が可能になります。
 
 # 5. **Notepadsを活用して知識ベースを構築し、AIと連携する**
+
+![](/images/cursor-advanced-techniques/notepads.gif)
 
 Notepadsは、Markdown形式でプロジェクト情報やテンプレート、コードスニペットなどを一元管理できる機能です。表面的には「個人Wiki」に見えますが、その真価は**ChatやComposerから`@Notepad`を使って呼び出せる**ところにあります。これによって、メモやコード例、ドキュメントテンプレートをいつでも**即座にプロンプトへ組み込み**、AIに参照させることが可能です。以下に、活用のポイントをまとめます。
 
