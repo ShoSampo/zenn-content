@@ -3,8 +3,7 @@ title: "Turning Functionとアフィン変換を用いた地図ポリゴンの�
 emoji: "📐"
 type: "tech"
 topics: ["アルゴリズム", "Python", "幾何学", 形状分析, "ComputerVision"]
-published: true
-published_at: false
+published: false
 ---
 
 # 2. アフィン変換によるポリゴンマッチング
