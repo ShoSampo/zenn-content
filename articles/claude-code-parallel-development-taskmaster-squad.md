@@ -1,12 +1,12 @@
 ---
-title: "ラクラク Claude Code 並列開発 ― Task Master 活用術"
+title: "ラクラク Claude Code 並列開発 ― Task Master & Squad 活用術"
 emoji: "🚀"
 type: "tech"
 topics: ["ai", "claude", "cursor", "taskmaster", "mcp"]
 published: false
 ---
 
-# ラクラク Claude Code 並列開発 ― Task Master 活用術
+# ラクラク Claude Code 並列開発 ― Task Master & Squad 活用術
 
 ## はじめに
 
