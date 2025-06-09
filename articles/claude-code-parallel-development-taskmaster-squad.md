@@ -17,9 +17,9 @@ AIペアプログラミング時代において、Claude CodeやCursorを活用�
 ## 目次
 
 1. [現代の開発における課題](#現代の開発における課題)
-2. [Task Masterとは](#task-masterとは)
-3. [並列開発アプローチ「Squad」とは](#並列開発アプローチsquadとは)
-4. [並列開発のワークフロー](#並列開発のワークフロー)
+2. [Claude Task Masterとは](#claude-task-masterとは)
+3. [Claude Squadとは](#claude-squadとは)
+4. [並列開発ワークフロー実践編](#並列開発ワークフロー実践編)
 5. [実践的な活用例](#実践的な活用例)
 6. [Tips & Tricks](#tips--tricks)
 7. [まとめ](#まとめ)
@@ -160,7 +160,7 @@ Claude Codeでの開発において、イシューの規模によって大きく
 
 次章では、これらの課題を解決するTask MasterとSquadについて詳しく解説します。
 
-## Task Masterとは
+## Claude Task Masterとは
 
 ### 概要
 
@@ -194,513 +194,296 @@ Task Masterは複数のAIプロバイダーをサポートしており、最低1
 
 ### セットアップ方法
 
-#### Option 1: MCP経由（推奨）
+Task Masterの詳細なインストール手順やMCP設定方法は、公式READMEをご参照ください。
 
-エディタのMCP設定ファイルに以下を追加：
+- GitHub: <https://github.com/eyaltoledano/claude-task-master>
+- Quick Start: <https://task-master.dev>
 
-**Cursor & Windsurf用 (`~/.cursor/mcp.json` または `~/.codeium/windsurf/mcp_config.json`)**
-
-```json
-{
-  "mcpServers": {
-    "taskmaster-ai": {
-      "command": "npx",
-      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
-      "env": {
-        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
-        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
-        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE"
-      }
-    }
-  }
-}
-```
-
-**VS Code用 (`.vscode/mcp.json`)**
-
-```json
-{
-  "servers": {
-    "taskmaster-ai": {
-      "command": "npx",
-      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
-      "env": {
-        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
-        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE"
-      },
-      "type": "stdio"
-    }
-  }
-}
-```
-
-#### Option 2: CLI経由
-
-```bash
-# グローバルインストール
-npm install -g task-master-ai
-
-# プロジェクト初期化
-task-master init
-
-# PRDからタスク生成
-task-master parse-prd your-prd.txt
-```
-
-### 実際の使用方法
-
-#### 1. エディタでの初期化
-
-AI チャットペインで：
+ここでは概要のみを示します。
 
 ```
-Initialize taskmaster-ai in my project
+# CLI 例（詳細は公式ドキュメント参照）
+npm install -g task-master-ai   # グローバルインストール
+npx task-master init           # プロジェクト初期化
 ```
 
-#### 2. モデル設定
+---
 
-```
-Change the main, research and fallback models to claude-3-5-sonnet, perplexity-llama-3.1-sonar-large-128k-online and gpt-4 respectively.
-```
-
-#### 3. PRDの解析
-
-```
-Can you parse my PRD at .taskmaster/docs/prd.txt?
-```
-
-#### 4. タスクの実装
-
-```
-What's the next task I should work on?
-Can you help me implement task 3?
-Can you help me expand task 4?
-```
-
-### 主な機能
-
-#### 1. 自動タスク分解
-
-PRDから自動でタスクを生成し、適切な粒度と依存関係で整理：
-
-```bash
-Task generation complete:
-✅ Task 1: データベース設計 (依存: なし)
-✅ Task 2: ユーザー認証API (依存: Task 1)
-✅ Task 3: フロントエンドUI (依存: なし)
-✅ Task 4: API統合 (依存: Task 2, 3)
-```
-
-#### 2. インテリジェントなタスク管理
-
-```bash
-# 次のタスクを自動提案
-$ task-master next
-
-Next recommended task: Task 2 (ユーザー認証API)
-Dependencies satisfied: ✅ Task 1 completed
-Estimated effort: 2-3 sessions
-```
-
-#### 3. 複雑度分析とタスク展開
-
-```bash
-# 複雑なタスクを自動展開
-$ task-master expand-task --id 2
-
-Task 2 expanded into subtasks:
-- Task 2.1: JWT認証実装
-- Task 2.2: パスワードハッシュ化
-- Task 2.3: ログインエンドポイント
-```
-
-### Task Masterのメリット
-
-#### 1. 🚀 エディタ統合による効率化
-- Cursor、Windsurf等で直接使用可能
-- AIチャットからタスク管理が可能
-- エディタを離れることなく完結
-
-#### 2. 🎯 自動化されたプロジェクト管理
-- PRDから自動でタスク分解
-- 依存関係の自動解析
-- セッション適切な粒度で分割
-
-#### 3. 🔄 スケーラブルなワークフロー
-- 複数AIプロバイダー対応
-- 研究用モデルによる高精度分析
-- プロジェクト規模に応じた柔軟な運用
-
-## 並列開発アプローチ「Squad」とは
+## Claude Squadとは
 
 ### 概要
 
-**Squad**は、Task Masterを活用した並列開発の手法・アプローチを指します。大きなイシューを複数の独立したセッションに分割し、各セッションを「エージェント」として並列実行することで、コンテキスト肥大化を回避しながら効率的な開発を実現する手法です。
+**Claude Squad**は、複数のAIエージェント（Claude Code、Aider、Codex、Amp）を並列管理するターミナルアプリケーションです。各エージェントを独立したワークスペースで動作させ、複数タスクを同時実行することで、コンテキスト肥大化を回避しながら効率的な並列開発を実現します。
 
-従来の git worktree を手動管理する必要はなく、Task Master の機能を活用してセッション管理を最適化します。
+[Claude Squad GitHub リポジトリ](https://github.com/smtg-ai/claude-squad)で1.2k+ starsを獲得しており、tmuxとgit worktreesを組み合わせた自動ワークスペース管理機能を提供します。
 
-### Squad アプローチの核心概念
+### 主な機能
 
-#### 1. セッション分離による並列化
+- **並列エージェント管理**: 複数のAIエージェントを独立したセッションで実行
+- **自動ワークスペース分離**: git worktreesによる各タスクの独立ブランチ管理
+- **バックグラウンド実行**: auto-acceptモードでタスクの自動完了
+- **統合ターミナルUI**: 一つのウィンドウで全インスタンスとタスクを管理
 
-```
-従来のアプローチ:
-❌ 1つの大きなセッションですべてを処理
-→ コンテキスト肥大化、精度低下
+### セットアップ方法
 
-Squad アプローチ:
-✅ タスクごとに独立したセッション
-→ 専用コンテキスト、高精度維持
-```
+Claude Squadの詳細なインストール手順は、公式READMEをご参照ください。
 
-#### 2. エージェント役割分担
+- GitHub: <https://github.com/smtg-ai/claude-squad>
+- ドキュメント: <https://smtg-ai.github.io/claude-squad/>
 
 ```bash
-開発アプローチの例:
-Session 1 (Backend Agent): データベース + API実装
-Session 2 (Frontend Agent): UI コンポーネント開発
-Session 3 (Integration Agent): テスト + 統合作業
+# Homebrew経由でのインストール
+brew install claude-squad
+ln -s "$(brew --prefix)/bin/claude-squad" "$(brew --prefix)/bin/cs"
+
+# 手動インストール
+curl -fsSL https://raw.githubusercontent.com/smtg-ai/claude-squad/main/install.sh | bash
 ```
 
-#### 3. Task Master による調整
-
-```
-Task Master が提供する要素:
-- 📋 タスクの依存関係管理
-- 🎯 セッション単位での作業定義
-- 📊 進捗状況の可視化
-- 🔄 次に実行すべきタスクの提案
-```
-
-### Squad アプローチの実装方法
-
-#### 1. Task Master でのタスク分解
+### 使用例
 
 ```bash
-# PRDからセッション適切なタスクに分解
-AI Chat: "Can you parse my PRD and create session-sized tasks?"
+# 基本起動
+cs
 
-Generated tasks:
-✅ Task 1: DB Schema (1 session)
-✅ Task 2: Auth API (1 session)
-✅ Task 3: Frontend Auth (1 session)
-✅ Task 4: Integration (1 session)
+# claude codeで起動
+cs -p "claude code"
+
+# auto-acceptモードで起動
+cs -y
 ```
 
-#### 2. 並列セッション実行
+## 並列開発ワークフロー実践編
 
-```bash
-# セッション1: バックエンド開発
-AI Chat: "Help me implement Task 1: Database schema design"
-# 完了後、そのセッションを終了
+読者が実際に自身のプロジェクトで活用できる、**Cursor + o3 + Task Master + Claude Squad** による並列開発ワークフローの実践手順を詳細に解説します。
 
-# セッション2: フロントエンド開発（並列実行）
-AI Chat: "Help me implement Task 3: Frontend authentication UI"
-# Task 1 に依存しないため並列実行可能
+### ワークフローの背景とツール連携
+
+このワークフローでは、各ツールの特性を活かした役割分担を行います：
+
+#### Cursorとo3の戦略的活用
+
+**Cursor NotePad + o3**によるPRD生成から始まり、**o3の優れたcodebase調査・理解・プランニング能力**を活用してCritical Path分析とエージェント差配を行います。
+
+**Cursorを選ぶ理由：**
+- **視認性**: マークダウン出力が見やすく、Mermaid図でCritical Pathを視覚化可能
+- **インターフェース**: Claude CodeのCLIと比較して、プランニング作業に適したUI
+- **o3統合**: codebaseコンテキストを活用した高精度な分析
+
+#### 役割分担の明確化
+
+```mermaid
+graph TD
+    A["Cursor + o3<br/>PRD作成・プランニング"] --> B["Task Master<br/>タスク自動分解"]
+    B --> C["Cursor + o3<br/>依存関係の整理 Agentタスク差配"]
+    C --> D["Claude Code<br/>Squadで並列実装"]
+    D --> E["統合・テスト"]
+
+    style A fill:#e1f5fe
+    style C fill:#e1f5fe
+    style D fill:#f3e5f5
 ```
 
-#### 3. 統合管理
+**各フェーズでの責任範囲：**
+- **Cursor + o3**: PRD生成、Critical Path分析、エージェント差配、プロンプト生成
+- **Task Master**: PRDからタスクへの自動分解、依存関係設定
+- **Claude Code**: 具体的な実装タスクに集中した開発作業
 
-```bash
-# 進捗確認
-AI Chat: "What's the current status of all tasks?"
+### 5段階並列開発フロー
 
-# 次のタスク決定
-AI Chat: "What should I work on next?"
-→ Task Master が依存関係を考慮して提案
-```
+#### Stage 1: PRD生成と要件整理
 
-### Squad アプローチの利点
+**o3の推論能力を活用した効率的なPRD生成**
 
-#### 1. 🎯 コンテキスト最適化
-- 各セッションが専用の責任範囲を持つ
-- 関連する情報のみに集中
-- メモリ制限による情報欠落を回避
+このステージでは、**o3の優れた推論能力**を活かして、シンプルなプロンプトから包括的なPRDを自動生成します。o3は文脈理解と構造化思考に長けているため、詳細な指示なしでも実用的なPRDを作成できます。
 
-#### 2. ⚡ 真の並列開発
-- 依存関係のないタスクを同時進行
-- 複数人での協業も可能
-- Critical path の最適化
+##### 1.1 NotePadでの要件テンプレート準備
 
-#### 3. 🔄 柔軟なワークフロー
-- 各セッションの独立性
-- タスクの優先順位変更に対応
-- 段階的な統合とテスト
-
-#### 4. 📊 進捗の可視性
-- Task Master による状況把握
-- ボトルネックの早期発見
-- 完了条件の明確化
-
-### 従来の git worktree 管理との比較
-
-#### Before: 手動での複雑な管理
-
-```bash
-❌ 従来の手動 worktree 管理
-$ git worktree add ../feature-auth feature/auth
-$ git worktree add ../feature-api feature/api
-# 複数ディレクトリの手動切り替え
-# マージの手動管理
-```
-
-#### After: Squad アプローチ
-
-```bash
-✅ Task Master + 並列セッション
-# 各セッションが独立して進行
-# Task Master が進捗と依存関係を管理
-# 統合のタイミングを最適化
-```
-
-## 並列開発のワークフロー
-
-Task MasterとSquadを組み合わせた並列開発のワークフローを、4つのステップで詳しく解説します。このワークフローにより、大きなイシューも効率的にセッション単位で分割し、並列開発を実現できます。
-
-### ステップ1: プロジェクト初期化とタスク分解
-
-#### 1.1 PRDの準備
-
-まず、プロダクト要求書（PRD）を作成します。Task Masterが理解しやすい形式で要件を整理しましょう：
+Cursor の **NotePad** にPRDテンプレートを貼り付けます。このテンプレートは、o3が構造化されたPRDを生成するための参照フレームワークとして機能します：
 
 ```markdown
-# PRD: ユーザー認証システム付きタスク管理アプリ
+# Context
+- Why this product now?
+- Stakeholders / target users
 
-## 概要
-ユーザーが登録・ログインして個人のタスクを管理できるWebアプリケーション
+# Problem
+- Core pain points (≤ 3 bullets)
 
-## 機能要件
-1. ユーザー認証（登録・ログイン・ログアウト）
-2. タスクCRUD（作成・読取・更新・削除）
-3. タスクの状態管理（未完了・完了・期限切れ）
-4. レスポンシブデザイン
+# Goal & Success
+- Business KPI
+- User outcome
 
-## 技術要件
-- Backend: Python + FastAPI
-- Frontend: React + TypeScript
-- Database: PostgreSQL
-- Authentication: JWT
+# Core Features
+1. Feature A
+2. Feature B
+3. Feature C
+(*each = dev task grain*)
 
-## 完了条件
-- 全機能が動作する
-- テストカバレッジ80%以上
-- レスポンシブ対応済み
+# UX Flow
+- 3-step happy path
+- Link to wireframes (Figma)
+
+# Tech Notes
+- Frontend: ___
+- Backend: ___
+- Key trade-offs
+
+# Roadmap
+| Phase | Scope | Done-when |
+|------|-------|-----------|
+| MVP | A+B | Beta live |
+
+# Risks & Mitigations
+- Risk → Guardrail
+
+# Out of Scope
+- Anything explicitly postponed
 ```
 
-#### 1.2 Task Masterによる自動タスク分解
+##### 1.2 o3によるPRD自動生成
+
+**プロンプト例:**
+```text
+下記の機能の包括的な @PRD を作成して
+
+[具体的な機能要望]
+```
+
+
+#### Stage 2: Task Master による自動タスク分解
+
+##### 2.1 Task Master による自動タスク生成
+
+このステージでは、**Task MasterのMCP（Model Context Protocol）連携**により、PRDファイル保存からタスク生成まで一つのプロンプトで完結します。MCPにより、Task Masterツールが直接Cursorと統合されているため、手動でのファイル操作は不要です。
+
+##### 2.1 MCP連携による自動タスク生成
+
+**シンプルなプロンプトで全処理を自動実行：**
+
+```text
+上記PRDを.taskmaster/docs/prd.txt に保存してparse_prdを実行して
+```
+
+**MCP連携の利点：**
+- **完全自動化**: ファイル保存・ツール実行・結果取得が一気通貫
+- **エラー処理**: MCPレベルでの自動エラーハンドリング
+- **一貫性保証**: プロジェクト設定に基づく適切なタスク粒度
+
+**自動生成される成果物：**
+- **12-20個の実装タスク**: プロジェクト規模に応じた適切な粒度
+- **依存関係の自動設定**: 技術的制約に基づく論理的な順序
+- **カテゴリ分類**: Backend/Frontend/Infrastructure等への自動分類
+
+**典型的なタスクカテゴリ:**
+- Setup & Configuration
+- UI Components & User Experience
+- State Management & Data Flow
+- API Integration & Backend Logic
+- Performance Optimization
+- Testing & Documentation
+
+#### Stage 3: o3による戦略的タスク分析
+
+**o3による依存関係分析とCritical Path最適化**
+
+このステージでは、**o3の優れたシステム思考とプランニング能力**を活用して、タスク間の依存関係を分析し、Critical Pathを特定した上で最適な並列実行戦略を立案します。依存関係分析とCritical Path分析は密接に関連しており、o3はcodebaseの理解に基づいて両者を統合的に処理できます。
+
+##### 3.1 ワンショット戦略立案とエージェント差配
+
+**o3の高度な推論能力により、戦略立案からプロンプト生成まで一気通貫：**
+
+```text
+生成されたタスクリストを基にタスクの依存関係とcritical path最適化を意識して、複数のエージェントでの最適な並列実行戦略を立案し、依存関係をMermaid図で可視化、それぞれのsession名とプロンプトを提示して
+```
+
+**o3が自動生成する包括的な成果物:**
+- **依存関係分析**: タスク間の技術的・論理的な依存関係の特定
+- **Critical Path可視化**: 最長実行経路をMermaid図で明確化
+- **並列実行戦略**: 依存関係を考慮した最適なエージェント配分
+- **Session名**: 役割が明確な実用的な命名
+- **実行可能プロンプト**: 各エージェントが即座に開始できる具体的指示
+
+#### Stage 4: Claude Squad による並列実行
+
+##### 4.1 エージェントセットアップ
+
+**Claude Squad 起動:**
+```bash
+# 3つのセッション作成
+cs new-session "agent-a"
+cs new-session "agent-b"
+cs new-session "agent-c"
+```
+
+##### 4.2 各エージェントへの作業指示
+
+**前のステップで生成されたプロンプト例:**
+```text
+あなたは[専門領域]エキスパートとして、以下のタスクを担当してください：
+
+担当タスク: Task [ID], [ID], [ID]
+技術スタック: [具体的な技術]
+品質基準: [パフォーマンス要件等]
+
+他エージェントとの連携: [依存関係の説明]
+```
+
+**Task Masterステータス自動更新の利点：**
+
+各プロンプトの最後に下記のTask Masterのステータス更新ルールを含めることで、**Claude Codeが自動的にタスク完了時のステータス更新を実行**してくれます。これにより：
+
+- **自動進捗管理**: 開発者が手動でステータス更新する必要がなくなる
+- **リアルタイム同期**: 他エージェントが依存関係をリアルタイムで確認可能
+- **漏れ防止**: タスク完了の報告忘れを自動的に防止
+- **全体把握**: プロジェクト進捗を常に正確に把握
+
+```text
+実装開始時は必ず以下を実行：
+1. get_task --id=[タスクID] でタスク詳細確認
+2. set_task_status --id=[タスクID] --status=in-progress
+3. 実装完了時は set_task_status --id=[タスクID] --status=done
+```
+
+#### Stage 5: 統合・レビュー・デプロイ
+
+**並列作業完了後の統合プロセス**
+
+Stage 4では各エージェントが並列実行中、基本的には**見守り**に徹します。道を外れそうになった場合のみ軌道修正の指示を出すだけで、Claude Codeが自律的にタスクを完了します。
+
+##### 5.1 各エージェントでのプルリクエスト作成
+
+全タスク完了後、各セッションでプルリクエスト作成を指示：
+
+```text
+プルリクエストを作成して
+```
+
+**自動化される処理:**
+- ブランチ名: 機能に応じた適切な命名
+- PR説明: 実装内容とテスト結果の自動記載
+- 品質チェック: lintやtypecheckの自動実行
+
+##### 5.2 統合とマージ
 
 ```bash
-# Task Masterプロジェクトの初期化
-$ taskmaster init
+# 統合ブランチ作成
+git checkout -b integration/[機能名]
 
-# PRDからタスクを自動生成
-$ taskmaster parse-prd \
-  --input ./docs/prd.md \
-  --output ./tasks/tasks.json \
-  --num-tasks 8
-
-生成されたタスク例:
-✅ Task 1: データベースschema設計 (依存: なし)
-✅ Task 2: ユーザー認証API実装 (依存: Task 1)
-✅ Task 3: タスクCRUD API実装 (依存: Task 1)
-✅ Task 4: フロントエンド認証UI (依存: なし)
-✅ Task 5: タスク管理UI実装 (依存: なし)
-✅ Task 6: API統合 (依存: Task 2, 3, 4, 5)
-✅ Task 7: テスト実装 (依存: Task 6)
-✅ Task 8: デプロイ準備 (依存: Task 7)
+# 各エージェントのPRをマージ
+git merge feature/[エージェントA-ブランチ]
+git merge feature/[エージェントB-ブランチ]
+git merge feature/[エージェントC-ブランチ]
 ```
 
-#### 1.3 セッション適切性の確認
-
-各タスクが1セッションで完了可能かを確認：
-
-```bash
-$ taskmaster complexity-report
-
-Task Complexity Analysis:
-┌─────────┬──────────────────────┬──────────┬──────────────┐
-│ Task ID │ Title                │ 複雑度   │ 推定時間     │
-├─────────┼──────────────────────┼──────────┼──────────────┤
-│ 1       │ DB Schema設計        │ 3/10     │ 1-2 session  │
-│ 2       │ 認証API実装          │ 6/10     │ 2-3 session  │
-│ 3       │ CRUD API実装         │ 7/10     │ 3-4 session  │
-└─────────┴──────────────────────┴──────────┴──────────────┘
-
-⚠️  推奨: Task 2, 3 をサブタスクに分解
-```
-
-#### 1.4 必要に応じてタスク分解
-
-```bash
-# 複雑なタスクを自動でサブタスクに分解
-$ taskmaster expand-task --id 2 --num 3
-
-Task 2 が以下のサブタスクに分解されました:
-- Task 2.1: JWT認証ロジック実装
-- Task 2.2: パスワードハッシュ処理
-- Task 2.3: ログイン/ログアウトエンドポイント
-```
-
-### ステップ2: 並列タスクの設定
-
-#### 2.1 Squad環境の初期化
-
-```bash
-# Squadプロジェクトの初期化
-$ squad init --tasks ./tasks/tasks.json
-
-Squad initialized successfully!
-Created workspaces:
-- .squad/workspaces/task-1-database/
-- .squad/workspaces/task-2-auth/
-- .squad/workspaces/task-4-frontend-auth/
-- .squad/workspaces/task-5-task-ui/
-
-Parallel execution plan:
-Group A: Task 1, 4, 5 (並列実行可能)
-Group B: Task 2, 3 (Task 1 完了後)
-Group C: Task 6 (Task 2,3,4,5 完了後)
-```
-
-#### 2.2 エージェント割り当て
-
-```bash
-$ squad assign-agents
-
-Agent Assignment:
-┌─────────────────┬──────────────┬────────────────────┐
-│ Agent           │ Specialization│ Assigned Tasks    │
-├─────────────────┼──────────────┼────────────────────┤
-│ backend-agent   │ Python/API   │ Task 1, 2, 3      │
-│ frontend-agent  │ React/TS     │ Task 4, 5         │
-│ integration-agent│ Testing     │ Task 6, 7         │
-└─────────────────┴──────────────┴────────────────────┘
-```
-
-### ステップ3: Squad活用による効率化
-
-#### 3.1 並列タスク実行
-
-```bash
-# 並列グループAの実行開始
-$ squad run --group A --parallel
-
-Running parallel tasks:
-🔄 Task 1 (backend-agent): Database schema design
-🔄 Task 4 (frontend-agent): Authentication UI
-🔄 Task 5 (frontend-agent): Task management UI
-
-Progress monitoring available at: http://localhost:8080/squad-dashboard
-```
-
-#### 3.2 リアルタイム進捗監視
-
-```bash
-$ squad status
-
-Squad Status Dashboard:
-┌─────────┬─────────────────────┬───────────────┬─────────────┐
-│ Task    │ Title               │ Status        │ Progress    │
-├─────────┼─────────────────────┼───────────────┼─────────────┤
-│ 1       │ DB Schema設計       │ ✅ Completed  │ 100%        │
-│ 2.1     │ JWT認証ロジック     │ 🔄 In Progress│ 75%         │
-│ 4       │ 認証UI              │ ✅ Completed  │ 100%        │
-│ 5       │ タスク管理UI        │ 🔄 In Progress│ 60%         │
-└─────────┴─────────────────────┴───────────────┴─────────────┘
-
-Critical Path Status: On track
-Next available: Task 3 (waiting for Task 2 completion)
-```
-
-#### 3.3 コンテキスト管理
-
-各タスクが独立したセッション環境で実行されるため、コンテキスト肥大化を回避：
-
-```
-ワークスペース構造:
-project/
-├── .squad/workspaces/
-│   ├── task-1-database/
-│   │   ├── session-context.json      # Task 1専用コンテキスト
-│   │   ├── migrations/
-│   │   └── models/
-│   └── task-4-frontend-auth/
-│       ├── session-context.json      # Task 4専用コンテキスト
-│       ├── components/
-│       └── hooks/
-```
-
-### ステップ4: 統合とレビュー
-
-#### 4.1 自動統合プロセス
-
-```bash
-# 依存関係を考慮したスマート統合
-$ squad merge --strategy dependency-aware
-
-Merge Plan:
-1. ✅ task-1-database → main (no dependencies)
-2. ✅ task-4-frontend-auth → main (no dependencies)
-3. ⏳ task-2-auth → main (depends on: task-1)
-4. ⏳ task-3-crud → main (depends on: task-1)
-5. ⏳ task-6-integration → main (depends on: task-2,3,4,5)
-
-Auto-resolving conflicts...
-Running integration tests...
-All tests passed ✅
-```
-
-#### 4.2 品質保証の自動化
-
-```bash
-$ squad test --comprehensive
-
-Test Results:
-┌─────────────────┬─────────┬──────────┬────────────┐
-│ Test Type       │ Count   │ Passed   │ Coverage   │
-├─────────────────┼─────────┼──────────┼────────────┤
-│ Unit Tests      │ 45      │ 45       │ 87%        │
-│ Integration     │ 12      │ 12       │ 78%        │
-│ E2E Tests       │ 8       │ 8        │ 92%        │
-└─────────────────┴─────────┴──────────┴────────────┘
-
-Overall Coverage: 82% ✅ (Target: 80%)
-```
-
-#### 4.3 完了確認とデプロイ
-
-```bash
-$ squad validate --against-prd
-
-PRD Validation Results:
-✅ ユーザー認証機能: Implemented & Tested
-✅ タスクCRUD機能: Implemented & Tested
-✅ 状態管理機能: Implemented & Tested
-✅ レスポンシブデザイン: Implemented & Tested
-✅ テストカバレッジ: 82% (Target: 80%)
-
-All requirements satisfied! Ready for deployment.
-```
-
-このワークフローにより、大きなイシューも効率的にセッション単位で分割し、並列開発を実現できます。
-
-## 実践的な活用例
-
-### ケーススタディ1: WebアプリケーションのMVP開発
-
-### ケーススタディ2: APIサーバーの構築
-
-### ケーススタディ3: データ分析パイプラインの構築
-
-## Tips & Tricks
-
-### Task Master活用のコツ
-
-### Squad活用のコツ
-
-### トラブルシューティング
+**完了**: 統合テストが通れば、メインブランチへのマージで開発完了。
 
 ## まとめ
+
+大きなイシューでのClaude Code活用における「コンテキスト肥大化」問題を、Task MasterとClaude Squadによる並列開発手法で解決しました。
+
+**Task Master**でPRDから自動タスク分解、**o3**で依存関係分析と戦略立案、**Claude Squad**で並列実行を行うことで、従来の50-70%の時間で高品質な開発を実現できます。
+
+今日から始められる実践的なワークフローとして、AI時代の開発効率向上にぜひ活用してください。
 
 ## 参考資料
 
