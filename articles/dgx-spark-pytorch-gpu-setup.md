@@ -99,19 +99,17 @@ CMD ["python", "your_script.py"]
 services:
   app:
     build: .
+    runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
     volumes:
       - .:/app
     working_dir: /app
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
 ```
+
+:::message alert
+`runtime: nvidia`を使用するには、[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)のインストールと、Dockerデーモンへのnvidiaランタイム登録が必要です。DGX Sparkはデフォルトで設定済みです。
+:::
 
 ### 実行
 
