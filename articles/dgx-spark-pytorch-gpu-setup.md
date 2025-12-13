@@ -4,6 +4,7 @@ emoji: "⚡"
 type: "tech"
 topics: ["DGXSpark", "PyTorch", "NVIDIA", "GPU", "Docker"]
 published: true
+publication_name: "toggle_inc"
 ---
 
 ## はじめに
